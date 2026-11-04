@@ -38,9 +38,15 @@ case "$stage" in
     # two GPUs: one language each; one GPU: both processes share it (each needs < 8 GB)
     G2=$([ "$NGPU" -ge 2 ] && echo 1 || echo 0)
     echo "GPUs: $NGPU -> English on cuda:0, Telugu on cuda:$G2"
-    CUDA_VISIBLE_DEVICES=0 python English/train.py ${H:+--max_hours "$H"} > Results/English/logs/train_stdout.log 2>&1 &
-    CUDA_VISIBLE_DEVICES=$G2 python Telugu/train.py ${H:+--max_hours "$H"} > Results/Telugu/logs/train_stdout.log 2>&1 &
+    # full output goes to train_stdout.log; progress/validation/error lines are also echoed
+    # with a language tag so a notebook log shows both runs live
+    run_one() {  # $1=Lang $2=gpu $3=tag
+      CUDA_VISIBLE_DEVICES=$2 python -u "$1/train.py" ${H:+--max_hours "$H"} 2>&1         | tee -a "Results/$1/logs/train_stdout.log"         | grep --line-buffered -E "Step [0-9]+/|Validation|Resuming|Parameters|utterances|Time budget|Reached|Error|Traceback|Non-finite"         | sed -u "s/^/[$3] /" || true
+    }
+    run_one English 0 EN &
+    run_one Telugu "$G2" TE &
     wait
+    tail -n 3 Results/English/logs/train_stdout.log Results/Telugu/logs/train_stdout.log
     ;;
   results)
     L=$(cap "$lang")
