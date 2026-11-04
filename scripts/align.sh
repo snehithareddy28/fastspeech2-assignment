@@ -38,9 +38,11 @@ case "$LANG_ARG" in
     D="$ROOT/data/Telugu"
     # No pretrained Telugu MFA model exists: train one (mono -> tri -> LDA/MLLT -> SAT)
     # on the selected ~6 h with the rule-based G2P lexicon, then align with it.
-    "$MFA" train --clean -j "$J" \
+    # --single_speaker: MFA splits jobs by speaker, so with one speaker it silently uses
+    # 1 job instead of $J (observed: ~3.5 h for training on one core).
+    "$MFA" train --clean -j "$J" --single_speaker \
       "$D/raw" "$D/lexicon.txt" "$D/mfa_telugu_acoustic.zip" 2>&1 | tee "$D/mfa_train.log"
-    "$MFA" align --clean -j "$J" --config_path "$ALIGN_CFG" \
+    "$MFA" align --clean -j "$J" --single_speaker --config_path "$ALIGN_CFG" \
       "$D/raw" "$D/lexicon.txt" "$D/mfa_telugu_acoustic.zip" "$D/TextGrid" 2>&1 | tee "$D/mfa_align.log"
     ;;
   *) echo "unknown language $LANG_ARG"; exit 1;;
