@@ -59,3 +59,9 @@ compatibility and training infrastructure.
 | `train.py` | resumable (`latest.pth.tar` with optimizer, step, epoch, RNG; `best.pth.tar` by validation loss; numbered checkpoints with retention), CSV loss logs, `--max_hours` wall-clock budget, `--device`, DataLoader workers, optional fp16 AMP, non-finite loss guard, no `nn.DataParallel`, no `quit()` |
 | `evaluate.py` | returns the loss values for logging; cached validation loader |
 | `synthesize.py` | rewritten: test-sentence TSV, language frontends, per-utterance duration/pitch/energy/overview plots and JSON of all predictions, speaker selection, runs from exported checkpoint metadata when the training data is absent |
+
+## 6. Alignment fallback (new)
+
+`scripts/ctc_align.py`: CTC forced alignment with the multilingual MMS-300m forced-alignment
+model over romanised Telugu phones, Viterbi implemented in the script, MFA-compatible
+TextGrids. Run with `bash scripts/align.sh telugu-ctc` if MFA training/alignment fails.

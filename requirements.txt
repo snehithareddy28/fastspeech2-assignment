@@ -20,4 +20,5 @@ matplotlib>=3.9
 tqdm>=4.66
 datasets>=3.6
 markdown>=3.7           # report build only (scripts/build_report.py)
+# transformers>=4.40    # only for the fallback aligner (scripts/ctc_align.py); installed by align.sh telugu-ctc
 # Montreal Forced Aligner runs in its own conda env: see scripts/setup_mfa.sh

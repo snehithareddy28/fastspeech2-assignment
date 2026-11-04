@@ -2,10 +2,20 @@
 # Forced alignment with Montreal Forced Aligner.
 #   bash scripts/align.sh english   # pretrained english_us_arpa acoustic model, our lexicon
 #   bash scripts/align.sh telugu    # train an acoustic model on the Telugu subset, then align
+#   bash scripts/align.sh telugu-ctc  # FALLBACK: CTC forced alignment (MMS wav2vec2), no MFA needed
 # Requires: python <Lang>/preprocess.py prepare  (writes data/<Lang>/raw and lexicon.txt)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-LANG_ARG="${1:?usage: align.sh english|telugu}"
+LANG_ARG="${1:?usage: align.sh english|telugu|telugu-ctc}"
+if [ "$LANG_ARG" = "telugu-ctc" ]; then
+  D="$ROOT/data/Telugu"
+  pip install -q "transformers>=4.40"
+  python "$ROOT/scripts/ctc_align.py" --config "$ROOT/Telugu/config.yaml" 2>&1 | tee "$D/ctc_align.log"
+  n_wav=$(find "$D/raw" -name '*.wav' | wc -l); n_tg=$(find "$D/TextGrid" -name '*.TextGrid' | wc -l)
+  mkdir -p "$ROOT/Results/Telugu"
+  echo "Aligned $n_tg / $n_wav utterances (CTC fallback aligner)" | tee "$ROOT/Results/Telugu/alignment_coverage.txt"
+  exit 0
+fi
 MFA="${MFA:-$ROOT/.mfa_env/bin/mfa}"
 J="${JOBS:-$(nproc)}"
 export MFA_ROOT_DIR="${MFA_ROOT_DIR:-$ROOT/mfa_models}"
