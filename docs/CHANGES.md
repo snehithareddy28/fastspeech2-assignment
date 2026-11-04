@@ -32,6 +32,9 @@ compatibility and training infrastructure.
 | `preprocessor/preprocessor.py` | stale `pitch`/`energy` from the previous utterance used when a TextGrid was missing |
 | `preprocessor/preprocessor.py` | re-running normalised feature files twice; output dirs are now cleared first |
 | `text/__init__.py` | unknown phones were silently dropped (input/duration length mismatch); now raise |
+| `utils/tools.py` | energy targets were passed to the loss as float64 (pitch was cast to float32); on CUDA the backward pass fails with "Found dtype Double but expected Float" |
+| `preprocessor/preprocessor.py` | worker processes now use the "spawn" start method: with Linux "fork" they inherited an initialised OpenMP/PyTorch thread pool and deadlocked on the first STFT |
+| `train.py` | `torch.cuda.set_device` gets an explicit index (torch 2.11 rejects a bare "cuda" device) |
 
 ## 3. Multi-language support (Telugu)
 

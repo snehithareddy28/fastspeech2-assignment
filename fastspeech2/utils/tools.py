@@ -38,7 +38,9 @@ def to_device(data, device):
         mels = torch.from_numpy(mels).float().to(device)
         mel_lens = torch.from_numpy(mel_lens).to(device)
         pitches = torch.from_numpy(pitches).float().to(device)
-        energies = torch.from_numpy(energies).to(device)
+        # MODIFIED: upstream left energy as float64 (pitch was cast); on CUDA the loss
+        # backward then fails with "Found dtype Double but expected Float"
+        energies = torch.from_numpy(energies).float().to(device)
         durations = torch.from_numpy(durations).long().to(device)
 
         return (

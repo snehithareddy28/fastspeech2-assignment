@@ -100,6 +100,9 @@ def main(config_path, restore=None, fresh=False, max_hours=None, device_str=None
     misc = train_config["misc"]
     device = torch.device(device_str or ("cuda" if torch.cuda.is_available() else "cpu"))
     if device.type == "cuda":
+        # torch >= 2.11 rejects set_device(torch.device("cuda")) without an index
+        if device.index is None:
+            device = torch.device("cuda", torch.cuda.current_device())
         torch.cuda.set_device(device)
 
     seed = misc.get("seed", 1234)
