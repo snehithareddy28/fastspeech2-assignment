@@ -8,8 +8,8 @@ data:                      # used by English/preprocess.py prepare
   hf_split: test                 # Svarah only ships a "test" split (~9.6 h)
   audio_column: audio_filepath
   text_column: text
-  train_hours: 5.0
-  val_hours: 1.0
+  train_hours: 5.5        # selection target before silence trimming / chunk drops;
+  val_hours: 1.1          # post-processing hours are reported in features_summary.json
   min_dur: 1.0             # seconds
   max_dur: 11.0            # keeps mel length < max_seq_len (1000 frames = 11.6 s)
   min_words: 2
@@ -49,6 +49,8 @@ preprocessing:
   energy:
     feature: phoneme_level
     normalization: true
+  chunking:
+    enabled: false         # Svarah utterances are already short (max_dur 11 s)
 
 model:
   transformer:

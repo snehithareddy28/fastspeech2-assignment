@@ -9,10 +9,11 @@ data:                      # used by Telugu/preprocess.py prepare
   audio_column: audio
   text_column: text
   speaker: auto            # "female" / "male" / auto = more usable audio
-  train_hours: 5.0
-  val_hours: 1.0
+  train_hours: 5.5        # selection target before silence trimming / chunk drops;
+  val_hours: 1.1          # post-processing hours are reported in features_summary.json
   min_dur: 1.0
-  max_dur: 11.0
+  max_dur: 30.0            # utterances are long (median ~19 s); they are aligned whole and
+                           # split at pauses into <=10 s training items (preprocessing.chunking)
   min_words: 2
   seed: 1234
 
@@ -30,7 +31,7 @@ preprocessing:
   text:
     text_cleaners: []      # phones come from text/telugu.py
   audio:
-    sampling_rate: 22050   # IndicTTS audio is downsampled to 22.05 kHz
+    sampling_rate: 22050   # IndicTTS Telugu on HF is 16 kHz: upsampled, nothing above 8 kHz
     max_wav_value: 32768.0
   stft:
     filter_length: 1024
@@ -48,6 +49,11 @@ preprocessing:
   energy:
     feature: phoneme_level
     normalization: true
+  chunking:                # split long aligned utterances at pauses
+    enabled: true
+    max_sec: 10.0          # < max_seq_len (1000 frames = 11.6 s)
+    min_pause_sec: 0.15    # an MFA silence at least this long is a cut point
+    min_sec: 1.0
 
 model:
   transformer:
