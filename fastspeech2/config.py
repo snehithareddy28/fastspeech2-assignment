@@ -50,6 +50,13 @@ def load_config(path):
     model_config = copy.deepcopy(cfg["model"])
     model_config["symbol_set"] = language
 
+    # anneal_steps may be given as fractions of total_step (e.g. [0.6, 0.8, 0.9]),
+    # so shortening a run only needs total_step to change.
+    opt = cfg["train"]["optimizer"]
+    total = cfg["train"]["step"]["total_step"]
+    if all(0 < a <= 1 for a in opt["anneal_steps"]):
+        opt["anneal_steps"] = [int(round(a * total)) for a in opt["anneal_steps"]]
+
     train_config = {
         "path": cfg["path"],
         "optimizer": cfg["train"]["optimizer"],

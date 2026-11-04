@@ -18,3 +18,4 @@ matplotlib==3.9.2
 tqdm==4.67.1
 datasets==3.6.0
 # Montreal Forced Aligner runs in its own conda env: see scripts/setup_mfa.sh
+markdown==3.7              # report build only (scripts/build_report.py)

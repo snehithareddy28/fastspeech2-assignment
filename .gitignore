@@ -14,3 +14,6 @@ fastspeech2/hifigan/*.pth.tar
 # local tools
 mfa_models/
 FastSpeech2_Assignment.pdf
+Report/Technical_Report.html
+.mfa_env/
+.micromamba/
