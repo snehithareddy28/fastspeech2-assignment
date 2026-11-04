@@ -1,0 +1,16 @@
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.vscode/
+.DS_Store
+# data and intermediate features (regenerable)
+data/
+*.npy
+# training checkpoints (full); exported inference weights are tracked via LFS
+*/checkpoints/*.pth.tar
+!*/checkpoints/*_infer_fp16.pth.tar
+# vocoder weights are unzipped at runtime
+fastspeech2/hifigan/*.pth.tar
+# local tools
+mfa_models/
+FastSpeech2_Assignment.pdf

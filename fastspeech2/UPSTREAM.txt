@@ -1,0 +1,1 @@
+Vendored from https://github.com/ming024/FastSpeech2 at commit d4e79eb52e8b01d24703b2dfc0385544092958f3 (2021-07-08). Omitted: demo/, img/, config/, preprocessed_data/, lexicon/pinyin-lexicon-r.txt, hifigan/generator_LJSpeech.pth.tar.zip.
