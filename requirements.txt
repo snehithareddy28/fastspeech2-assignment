@@ -1,21 +1,23 @@
-# Python 3.10-3.12. Tested locally (CPU smoke test) with these exact versions.
-# torch: use the CUDA build preinstalled on Colab/Kaggle if it is >= 2.1;
-# otherwise install torch==2.5.1 from https://download.pytorch.org/whl/cu121
-torch>=2.1,<3
-numpy==1.26.4
-scipy==1.13.1
-librosa==0.10.2.post1
-soundfile==0.12.1
-pyworld==0.3.4
+# Python 3.10-3.13. Lower bounds only for libraries that Kaggle/Colab preinstall, so pip
+# keeps the platform's wheels instead of compiling numpy/scipy from source. The exact
+# versions used for the submitted results are recorded by scripts/run_pipeline.sh in
+# Results/environment_<stage>.txt (python version + pip freeze).
+# torch: use the preinstalled CUDA build (>= 2.1).
+torch>=2.1
+numpy>=1.26,<3
+scipy>=1.13
+librosa>=0.10.2
+soundfile>=0.12.1
+pyworld>=0.3.5          # 0.3.5+ has wheels for recent Python and numpy 2
 tgt==1.5
 g2p_en==2.1.0
-nltk==3.9.1
-inflect==7.3.1
-Unidecode==1.3.8
-PyYAML==6.0.2
-scikit-learn==1.5.2
-matplotlib==3.9.2
-tqdm==4.67.1
-datasets==3.6.0
+nltk>=3.9.1
+inflect>=7.3.1
+Unidecode>=1.3.8
+PyYAML>=6.0
+scikit-learn>=1.5
+matplotlib>=3.9
+tqdm>=4.66
+datasets>=3.6
+markdown>=3.7           # report build only (scripts/build_report.py)
 # Montreal Forced Aligner runs in its own conda env: see scripts/setup_mfa.sh
-markdown==3.7              # report build only (scripts/build_report.py)

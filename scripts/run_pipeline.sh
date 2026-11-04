@@ -8,6 +8,10 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
 stage="${1:?stage}"; lang="${2:-}"
+# record the exact environment used for this stage (requirements.txt has lower bounds only)
+mkdir -p Results
+{ echo "# $(date -u +%FT%TZ) stage=$stage $lang"; python --version; nvidia-smi -L 2>/dev/null || true
+  python -m pip freeze; } > "Results/environment_${stage}${lang:+_$lang}.txt" 2>&1 || true
 cap() { echo "${1^}"; }
 case "$stage" in
   data)
