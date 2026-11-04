@@ -1,0 +1,4 @@
+# MFA alignment options (MFA 3.x reads these from --config_path; passing --beam on the
+# command line is not supported and shifts the positional arguments)
+beam: 100
+retry_beam: 400

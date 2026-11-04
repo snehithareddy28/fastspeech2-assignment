@@ -11,7 +11,8 @@ data:                      # used by English/preprocess.py prepare
   train_hours: 5.5        # selection target before silence trimming / chunk drops;
   val_hours: 1.1          # post-processing hours are reported in features_summary.json
   min_dur: 1.0             # seconds
-  max_dur: 11.0            # keeps mel length < max_seq_len (1000 frames = 11.6 s)
+  max_dur: 30.0            # 11 s kept only 4.8 h (Svarah has many long clips); longer
+                           # clips are aligned whole and split at pauses (preprocessing.chunking)
   min_words: 2
   min_speaker_minutes: 3.0 # speakers with less audio are not used
   gender: null             # null = both; "female"/"male" to restrict
@@ -49,8 +50,11 @@ preprocessing:
   energy:
     feature: phoneme_level
     normalization: true
-  chunking:
-    enabled: false         # Svarah utterances are already short (max_dur 11 s)
+  chunking:                # split long aligned utterances at pauses
+    enabled: true
+    max_sec: 10.0          # < max_seq_len (1000 frames = 11.6 s)
+    min_pause_sec: 0.15
+    min_sec: 1.0
 
 model:
   transformer:

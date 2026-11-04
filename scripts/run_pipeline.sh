@@ -18,7 +18,12 @@ case "$stage" in
     L=$(cap "$lang")
     python "$L/preprocess.py" prepare
     [ -x .mfa_env/bin/mfa ] || bash scripts/setup_mfa.sh
-    bash scripts/align.sh "$lang"
+    if [ "$lang" = "telugu" ]; then
+      # if MFA cannot train/align Telugu, fall back to the CTC aligner automatically
+      bash scripts/align.sh telugu || { echo "MFA failed for Telugu -> CTC fallback"; rm -rf data/Telugu/TextGrid; bash scripts/align.sh telugu-ctc; }
+    else
+      bash scripts/align.sh "$lang"
+    fi
     python "$L/preprocess.py" features
     ;;
   train)
