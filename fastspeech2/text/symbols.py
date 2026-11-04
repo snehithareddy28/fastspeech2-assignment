@@ -1,11 +1,14 @@
-""" from https://github.com/keithito/tacotron """
+""" from https://github.com/keithito/tacotron
 
+MODIFIED for this project: symbol tables are now per language.
+  * "en": upstream table minus pinyin (pad, punctuation, letters, @ARPAbet, @silences)
+  * "te": pad + @Telugu phones (see text/telugu.py) + @silences
+Each model only allocates embeddings for its own language. Upstream used one
+global table (ARPAbet + pinyin) for every dataset.
 """
-Defines the set of symbols used in text input to the model.
 
-The default is a set of ASCII characters that works well for English or text that has been run through Unidecode. For other data, you can modify _characters. See TRAINING_DATA.md for details. """
-
-from text import cmudict, pinyin
+from text import cmudict
+from text import telugu
 
 _pad = "_"
 _punctuation = "!'(),.:;? "
@@ -15,15 +18,17 @@ _silences = ["@sp", "@spn", "@sil"]
 
 # Prepend "@" to ARPAbet symbols to ensure uniqueness (some are the same as uppercase letters):
 _arpabet = ["@" + s for s in cmudict.valid_symbols]
-_pinyin = ["@" + s for s in pinyin.valid_symbols]
+_telugu = ["@" + s for s in telugu.PHONES]
 
-# Export all symbols:
-symbols = (
-    [_pad]
-    + list(_special)
-    + list(_punctuation)
-    + list(_letters)
-    + _arpabet
-    + _pinyin
-    + _silences
-)
+SYMBOL_SETS = {
+    "en": [_pad] + list(_special) + list(_punctuation) + list(_letters) + _arpabet + _silences,
+    "te": [_pad] + _telugu + _silences,
+}
+
+
+def get_symbols(lang):
+    return SYMBOL_SETS[lang]
+
+
+# Backwards compatibility with upstream imports
+symbols = SYMBOL_SETS["en"]

@@ -16,6 +16,7 @@ class Dataset(Dataset):
         self.dataset_name = preprocess_config["dataset"]
         self.preprocessed_path = preprocess_config["path"]["preprocessed_path"]
         self.cleaners = preprocess_config["preprocessing"]["text"]["text_cleaners"]
+        self.lang = preprocess_config["language"]  # MODIFIED: per-language symbols
         self.batch_size = train_config["optimizer"]["batch_size"]
 
         self.basename, self.speaker, self.text, self.raw_text = self.process_meta(
@@ -34,7 +35,7 @@ class Dataset(Dataset):
         speaker = self.speaker[idx]
         speaker_id = self.speaker_map[speaker]
         raw_text = self.raw_text[idx]
-        phone = np.array(text_to_sequence(self.text[idx], self.cleaners))
+        phone = np.array(text_to_sequence(self.text[idx], self.cleaners, self.lang))
         mel_path = os.path.join(
             self.preprocessed_path,
             "mel",
@@ -149,6 +150,7 @@ class Dataset(Dataset):
 class TextDataset(Dataset):
     def __init__(self, filepath, preprocess_config):
         self.cleaners = preprocess_config["preprocessing"]["text"]["text_cleaners"]
+        self.lang = preprocess_config["language"]
 
         self.basename, self.speaker, self.text, self.raw_text = self.process_meta(
             filepath
@@ -168,7 +170,7 @@ class TextDataset(Dataset):
         speaker = self.speaker[idx]
         speaker_id = self.speaker_map[speaker]
         raw_text = self.raw_text[idx]
-        phone = np.array(text_to_sequence(self.text[idx], self.cleaners))
+        phone = np.array(text_to_sequence(self.text[idx], self.cleaners, self.lang))
 
         return (basename, speaker_id, phone, raw_text)
 
@@ -196,60 +198,3 @@ class TextDataset(Dataset):
         texts = pad_1D(texts)
 
         return ids, raw_texts, speakers, texts, text_lens, max(text_lens)
-
-
-if __name__ == "__main__":
-    # Test
-    import torch
-    import yaml
-    from torch.utils.data import DataLoader
-    from utils.utils import to_device
-
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    preprocess_config = yaml.load(
-        open("./config/LJSpeech/preprocess.yaml", "r"), Loader=yaml.FullLoader
-    )
-    train_config = yaml.load(
-        open("./config/LJSpeech/train.yaml", "r"), Loader=yaml.FullLoader
-    )
-
-    train_dataset = Dataset(
-        "train.txt", preprocess_config, train_config, sort=True, drop_last=True
-    )
-    val_dataset = Dataset(
-        "val.txt", preprocess_config, train_config, sort=False, drop_last=False
-    )
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=train_config["optimizer"]["batch_size"] * 4,
-        shuffle=True,
-        collate_fn=train_dataset.collate_fn,
-    )
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=train_config["optimizer"]["batch_size"],
-        shuffle=False,
-        collate_fn=val_dataset.collate_fn,
-    )
-
-    n_batch = 0
-    for batchs in train_loader:
-        for batch in batchs:
-            to_device(batch, device)
-            n_batch += 1
-    print(
-        "Training set  with size {} is composed of {} batches.".format(
-            len(train_dataset), n_batch
-        )
-    )
-
-    n_batch = 0
-    for batchs in val_loader:
-        for batch in batchs:
-            to_device(batch, device)
-            n_batch += 1
-    print(
-        "Validation set  with size {} is composed of {} batches.".format(
-            len(val_dataset), n_batch
-        )
-    )
