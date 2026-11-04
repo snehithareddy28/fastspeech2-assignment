@@ -98,6 +98,7 @@ def main():
     ap.add_argument("--lang", nargs="+", default=["te", "en"])
     ap.add_argument("--out", default=os.path.join(ROOT, "smoke_out"))
     ap.add_argument("--amp", action="store_true", help="also time a short fp16 AMP run")
+    ap.add_argument("--features_only", action="store_true", help="stop after feature extraction")
     args = ap.parse_args()
     py = sys.executable
     report = {}
@@ -111,6 +112,9 @@ def main():
         cfg_file = os.path.join(args.out, lang + "_config.yaml")
         yaml.safe_dump(cfg, open(cfg_file, "w", encoding="utf-8"), allow_unicode=True)
         run([py, L + "/preprocess.py", "features", "--config", cfg_file, "--workers", "4"])
+        if args.features_only:
+            report[L] = {"features": "ok"}
+            continue
         half = args.steps // 2
         cfg["train"]["step"]["total_step"] = half
         yaml.safe_dump(cfg, open(cfg_file, "w", encoding="utf-8"), allow_unicode=True)

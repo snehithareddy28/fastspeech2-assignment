@@ -19,7 +19,7 @@ Based on ming024 preprocessor/preprocessor.py. MODIFIED:
 """
 import json
 import os
-from multiprocessing import Pool
+import multiprocessing
 
 import librosa
 import numpy as np
@@ -36,6 +36,8 @@ _WORKER = {}
 
 
 def _init_worker(config):
+    import torch
+    torch.set_num_threads(1)  # one thread per worker process; avoids oversubscription
     _WORKER["p"] = Preprocessor(config)
 
 
@@ -119,7 +121,11 @@ class Preprocessor:
         pitch_scaler = StandardScaler()
         energy_scaler = StandardScaler()
 
-        with Pool(num_workers, initializer=_init_worker, initargs=(self.config,)) as pool:
+        # MODIFIED: "spawn" workers. With Linux's default "fork", workers inherit the parent's
+        # already-initialised OpenMP/PyTorch thread pool and can deadlock on their first STFT
+        # (observed on Kaggle: no utterance processed in 45 min).
+        ctx = multiprocessing.get_context("spawn")
+        with ctx.Pool(num_workers, initializer=_init_worker, initargs=(self.config,)) as pool:
             for (speaker, basename), ret in tqdm(
                 pool.imap_unordered(_work, items, chunksize=8), total=len(items)
             ):
