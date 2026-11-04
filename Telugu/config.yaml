@@ -93,7 +93,7 @@ train:
     anneal_steps: [0.6, 0.8, 0.9]   # fractions of total_step
     anneal_rate: 0.3
   step:
-    total_step: 100000     # ~7.5 h at the 3.8 it/s measured on a Kaggle T4 with fp16; see README
+    total_step: 65000      # ~4.8 h at ~3.8 it/s (Kaggle T4, fp16, one language at a time); see README
     log_step: 100
     val_step: 1000
     save_step: 10000

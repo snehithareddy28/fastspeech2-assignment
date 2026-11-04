@@ -49,6 +49,17 @@ case "$stage" in
     wait
     tail -n 3 Results/English/logs/train_stdout.log Results/Telugu/logs/train_stdout.log
     ;;
+  train-seq)
+    # one language after the other, each with the whole machine: on a 4-core Kaggle GPU
+    # box two parallel runs are CPU-bound (~1.1 it/s each vs ~3.8 it/s alone)
+    H="${2:-}"   # wall-clock budget PER language
+    export TQDM_DISABLE=1
+    for L in English Telugu; do
+      mkdir -p "Results/$L/logs"
+      tag=$([ "$L" = English ] && echo EN || echo TE)
+      CUDA_VISIBLE_DEVICES=0 python -u "$L/train.py" ${H:+--max_hours "$H"} 2>&1         | tee -a "Results/$L/logs/train_stdout.log"         | grep --line-buffered -E "Step [0-9]+/|Validation|Resuming|Parameters|utterances|Time budget|Reached|Error|Traceback|Non-finite"         | sed -u "s/^/[$tag] /" || true
+    done
+    ;;
   results)
     L=$(cap "$lang")
     python scripts/plot_losses.py "$L"
