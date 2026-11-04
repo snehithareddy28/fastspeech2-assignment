@@ -29,8 +29,12 @@ case "$stage" in
   train-both)
     H="${2:-}"
     mkdir -p Results/English/logs Results/Telugu/logs
+    NGPU=$(nvidia-smi -L 2>/dev/null | wc -l)
+    # two GPUs: one language each; one GPU: both processes share it (each needs < 8 GB)
+    G2=$([ "$NGPU" -ge 2 ] && echo 1 || echo 0)
+    echo "GPUs: $NGPU -> English on cuda:0, Telugu on cuda:$G2"
     CUDA_VISIBLE_DEVICES=0 python English/train.py ${H:+--max_hours "$H"} > Results/English/logs/train_stdout.log 2>&1 &
-    CUDA_VISIBLE_DEVICES=1 python Telugu/train.py ${H:+--max_hours "$H"} > Results/Telugu/logs/train_stdout.log 2>&1 &
+    CUDA_VISIBLE_DEVICES=$G2 python Telugu/train.py ${H:+--max_hours "$H"} > Results/Telugu/logs/train_stdout.log 2>&1 &
     wait
     ;;
   results)
