@@ -34,7 +34,8 @@ case "$stage" in
   train-both)
     H="${2:-}"
     mkdir -p Results/English/logs Results/Telugu/logs
-    NGPU=$(nvidia-smi -L 2>/dev/null | wc -l)
+    export TQDM_DISABLE=1   # progress bars are noise in a log; step lines are still printed
+    NGPU=$( (nvidia-smi -L 2>/dev/null || true) | wc -l)
     # two GPUs: one language each; one GPU: both processes share it (each needs < 8 GB)
     G2=$([ "$NGPU" -ge 2 ] && echo 1 || echo 0)
     echo "GPUs: $NGPU -> English on cuda:0, Telugu on cuda:$G2"
