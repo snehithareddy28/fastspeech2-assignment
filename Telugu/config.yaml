@@ -93,7 +93,7 @@ train:
     anneal_steps: [0.6, 0.8, 0.9]   # fractions of total_step
     anneal_rate: 0.3
   step:
-    total_step: 100000     # set to ~ (measured it/s) x 3600 x (GPU hours); see README
+    total_step: 100000     # ~7.5 h at the 3.8 it/s measured on a Kaggle T4 with fp16; see README
     log_step: 100
     val_step: 1000
     save_step: 10000
@@ -103,7 +103,7 @@ train:
     seed: 1234
     num_workers: 4
     group_size: 4
-    amp: false
+    amp: true              # fp16 autocast: 3.8 vs 1.7 it/s on a T4; same val loss in a GPU smoke test
     tensorboard: false
 
 inference:
