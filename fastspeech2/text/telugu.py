@@ -21,6 +21,7 @@ Phones are ASCII strings so they can be used as MFA phones and as symbols in
 the model's embedding table. Retroflexes use an "x" suffix.
 """
 import re
+import sys
 import unicodedata
 
 # ----------------------------------------------------------------------------
@@ -217,6 +218,7 @@ def normalize_telugu(text):
         return telugu_number(h) if mnt == 0 else telugu_number(h) + " " + telugu_number(mnt)
 
     text = _TIME_RE.sub(_time, text)
+    text = re.sub(r"(\d+(?:\.\d+)?)\s?%", r"\1 శాతం", text)  # 50% -> యాభై శాతం
     text = _ORD_RE.sub(lambda m: telugu_ordinal(int(m.group(1))), text)
     text = _DEC_RE.sub(lambda m: telugu_number(int(m.group(1))) + " పాయింట్ " +
                        " ".join(_ONES[int(d)] for d in m.group(2)), text)
@@ -255,7 +257,7 @@ def text_to_phones(text, verbose=False):
     (word, phones, source) triples for logging and plots.
     """
     norm = normalize_telugu(text)
-    phones, word_phones = [], []
+    phones, word_phones, skipped = [], [], []
     for tok in _TOKEN_RE.findall(norm):
         if TELUGU_BLOCK.match(tok[0]):
             ph = word_to_phones(tok)
@@ -265,9 +267,12 @@ def text_to_phones(text, verbose=False):
             if phones and phones[-1] != "sp":
                 phones.append("sp")
                 word_phones.append((tok, ["sp"], "pause"))
-        else:
-            if verbose:
-                print("[telugu g2p] skipping unsupported token {!r}".format(tok))
+        elif tok not in "\"'()[]“”‘’":
+            skipped.append(tok)
+    if skipped:
+        # not silent: Latin words or symbols in Telugu input are dropped
+        print("[telugu g2p] warning: dropped unsupported characters {!r}".format(
+            "".join(skipped)), file=sys.stderr)
     while phones and phones[-1] == "sp":
         phones.pop()
         word_phones.pop()

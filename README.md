@@ -114,3 +114,5 @@ text and phone sequence for each sentence are saved in
 "పులి అడ విలో ..." with a space inside "అడవిలో", the Telugu counterpart of E3's "rhyth m";
 it is kept. `Results/English/test_generated_audios/E3.wav` uses the split-word rule;
 the unjoined version ("rye-th em") is kept in `Results/English/e3_without_join/` for comparison.
+E2a was regenerated after a frontend fix for possessives ("orchestra's" had its "'s" read as
+the letter s); the earlier output is in `Results/English/e2a_before_clitic_fix/`.

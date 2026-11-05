@@ -11,11 +11,11 @@
  },
  {
   "id": "E2a",
-  "seconds": 3.425,
-  "n_phones": 52,
-  "mean_f0_hz": 135.0,
-  "min_f0_hz": 113.1,
-  "max_f0_hz": 167.9,
+  "seconds": 3.437,
+  "n_phones": 51,
+  "mean_f0_hz": 133.5,
+  "min_f0_hz": 114.8,
+  "max_f0_hz": 163.3,
   "zero_duration_phones": 0,
   "normalized_text": "The orchestra's conduct during the ceremony was praised by the audience."
  },

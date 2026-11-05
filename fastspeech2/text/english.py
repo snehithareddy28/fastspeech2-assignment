@@ -118,7 +118,18 @@ def normalize_english(text, for_alignment=False):
                   lambda m: "%s %s" % (_ordinal(m.group(1)), m.group(2)), text,
                   flags=re.IGNORECASE)
     text = re.sub(r"\b(\d+)(st|nd|rd|th)\b", lambda m: _ordinal(m.group(1)), text)
-    text = re.sub(r"(\d),(\d{3})", r"\1\2", text)
+    # currency, grouped numbers and long digit strings (added after training)
+    def _money(m, unit, sub):
+        n = int(m.group(1).replace(",", ""))
+        words = "%s %s%s" % (_num(n), unit, "" if n == 1 else "s")
+        if sub and m.group(2) and int(m.group(2)):
+            c = int(m.group(2))
+            words += " and %s %s%s" % (_num(c), sub, "" if c == 1 else "s")
+        return " " + words + " "
+    text = re.sub(r"\$\s?(\d[\d,]*)(?:\.(\d{2}))?\b", lambda m: _money(m, "dollar", "cent"), text)
+    text = re.sub(r"\bRs\.?\s?(\d[\d,]*)()\b", lambda m: _money(m, "rupee", None), text)
+    text = re.sub(r"\b\d{1,3}(?:,\d{3})+\b", lambda m: " " + _num(m.group(0).replace(",", "")) + " ", text)
+    text = re.sub(r"\b\d{7,}\b", lambda m: " " + " ".join(_num(d) for d in m.group(0)) + " ", text)
     text = re.sub(r"(\d+(?:\.\d+)?)\s?%", r"\1 percent", text)
     text = re.sub(r"\b(\d+)\.(\d+)\b",
                   lambda m: _num(m.group(1)) + " point " + " ".join(_num(d) for d in m.group(2)),
@@ -164,7 +175,17 @@ def _get_g2p():
     return _g2p
 
 
-_PUNCT_PAUSE = set(",.;:?!")
+_PUNCT_PAUSE = set(",.;:?!") | {"..."}
+_CLITICS = {"'s", "'re", "'ll", "'ve", "'d", "'m", "n't"}
+
+
+def _possessive(last):
+    """Phones of a possessive/plural 's after a word ending in phone `last`."""
+    if last in ("S", "Z", "SH", "ZH", "CH", "JH"):
+        return ["IH0", "Z"]
+    if last in ("P", "T", "K", "F", "TH"):
+        return ["S"]
+    return ["Z"]
 
 # Inference-only rule: re-join a word split by a stray space ("rhyth m" -> "rhythm").
 # Two adjacent alphabetic tokens are joined when the joined form is in CMUdict and
@@ -208,6 +229,20 @@ def _g2p_words(segment):
         words = word_tokenize(text)
     except LookupError:
         words = TweetTokenizer().tokenize(text)
+    # Re-attach clitics. word_tokenize (needs NLTK punkt) splits "orchestra's" into
+    # "orchestra" + "'s", and "'s" alone is in CMUdict as the letter name EH1 S;
+    # TweetTokenizer (the fallback) keeps it whole. Merging makes both agree.
+    merged = []
+    for w in words:
+        if merged and w in _CLITICS and re.search("[a-z]$", merged[-1]):
+            merged[-1] += w
+        else:
+            merged.append(w)
+    words = merged
+    # hyphenated compounds not in CMUdict are read part by part ("state-of-the-art")
+    words = [part for w in words
+             for part in (w.split("-") if "-" in w.strip("-") and w not in g2p.cmu else [w])
+             if part]
     joined = set()
     if JOIN_SPLIT_WORDS:
         words, joined = _join_split_words(words, g2p.cmu)
@@ -223,6 +258,10 @@ def _g2p_words(segment):
         elif word in g2p.cmu:
             pron = g2p.cmu[word][0]
             src = "cmudict"
+        elif word.endswith("'s") and word[:-2] in g2p.cmu:
+            base = g2p.cmu[word[:-2]][0]
+            pron = base + _possessive(base[-1])
+            src = "cmudict+'s"
         else:
             pron = g2p.predict(word)
             src = "neural"

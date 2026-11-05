@@ -76,6 +76,15 @@ so every change is a reviewable diff.
   single letter other than "a"/"i"). "rhyth m" -> "rhythm"; "in to" and "a way" stay split.
   Known false positive: "a m an" -> "am an". `--no_join` disables it. Training and
   alignment are unaffected.
+* **Added after training** (inference frontend only; the trained models are unchanged):
+  clitics split off by NLTK's tokenizer are re-attached ("orchestra" + "'s" ->
+  "orchestra's", read with /z/; before, "'s" was read as the letter s), with an `S`, `Z`
+  or `IH0 Z` rule for possessives not in CMUdict; `$` and `Rs` amounts; "1,000" as a
+  cardinal (it was read as the year "ten hundred"); digit strings of 7 or more digits
+  read digit by digit; hyphenated words not in CMUdict read part by part; a pause at an
+  ellipsis. Telugu: "%" -> శాతం, and a warning when non-Telugu text (e.g. a Latin-script
+  word) is dropped. These came from probing the frontends with general edge cases; among
+  the test sentences only E2a changes.
 * **Multi-speaker.** Svarah has many speakers with a few minutes each, so a speaker
   embedding table is used (upstream `multi_speaker: True`). Test sentences use the speaker
   with the most training data.
@@ -221,7 +230,7 @@ Listening observations are the author's, made on the generated files.
 | ID | Frontend output (deterministic, verified) | Listening observations |
 |---|---|---|
 | E1 | "antidisestablishmentarianism" is in CMUdict: `AE2 N T AY0 D IH0 S AH0 S T AE2 B L IH0 SH M AH0 N T EH1 R IY0 AH0 N IH0 Z AH0 M` (28 phones) | The long word is clear and intact. As in all English outputs, the audio has audible background noise (see Section 8). |
-| E2a | "conduct" tagged NN -> `K AA1 N D AH0 K T` (noun stress) | Sounds natural, but no stress is audible on either syllable (see E2b). Predicted: AA1 58 ms / 140 Hz, AH0 104 ms / 130 Hz; the stressed vowel is shorter than the unstressed one and the pitch step is only 10 Hz. |
+| E2a | "conduct" tagged NN -> `K AA1 N D AH0 K T` (noun stress). "orchestra's" -> CMUdict `... AH0 Z` | Sounds natural, but no stress is audible on either syllable (see E2b). Predicted: AA1 46 ms / 137 Hz, AH0 104 ms / 130 Hz; the stressed vowel is shorter than the unstressed one and the pitch step is only 7 Hz. The first run split off "'s" and read it as the letter name `EH1 S`, because NLTK's word_tokenize separates clitics; the frontend now re-attaches them (Section 2.3). The corrected version was judged right by listening; the earlier output is kept in `Results/English/e2a_before_clitic_fix/` (there the AA1/AH0 values were 58 ms / 140 Hz and 104 ms / 130 Hz, same conclusion). |
 | E2b | "conduct" tagged VB -> `K AA0 N D AH1 K T` (verb stress) | Sounds natural, but no stress contrast with E2a is audible. Predicted: AA0 58 ms / 130 Hz, AH1 35 ms / 133 Hz, i.e. the stressed vowel is again the shorter one and pitch is flat. The frontend does choose the correct stress (the phone symbols differ: AA1/AH0 vs AA0/AH1), but the model has not learned to realise lexical stress as duration or pitch. Plausible reasons: Indian English, the variety in Svarah, marks lexical stress weakly and less consistently than US English, the CMUdict stress labels are US English, and 5 h of data gives few contrasting examples. |
 | E3 | With the split-word rule: "rhyth m" -> "rhythm" -> CMUdict `R IH1 DH AH0 M`. Without it (`--no_join`, kept in `Results/English/e3_without_join/`): "rhyth" is OOV -> neural G2P `R AY1 DH`, "m" -> letter name `EH1 M` | With the rule it sounds like "rhythm". Without it, heard as "rye-th em", as predicted by the phones: the model speaks what the frontend gives it, so the error was entirely in text processing, not in the acoustic model. In the fixed version the F0 peak falls on the unstressed AH0 (158 Hz, 58 ms) rather than IH1 (135 Hz, 46 ms), the same missing-stress pattern as E2a/E2b. |
 | E4 | normalised to "ten forty five {A M} on twelfth November twenty twenty six, so andaroo ..."; AM as letter names `EY1 EH1 M`; "andaroo" OOV -> `AE0 N D AA1 R OW0` | Time and date sound perfect. "andaroo" sounds rushed: its predicted vowels (AE0 70, AA1 58, OW0 70 ms) are no longer than the sentence's average vowel (63 ms), whereas Telugu అందరూ ends in a long /uu/ (the Telugu model predicts about 100 to 120 ms for long vowels). The English G2P reads it with English vowels (AE, OW) and English stress, so a Telugu word in an English sentence gets English timing. |
@@ -248,7 +257,7 @@ Summary per sentence (speech phones only; F0 is the predicted per-phone value):
 | ID | Length | Phones/s | Mean F0, first third -> last third | F0 on final vowel | Mean vowel / final vowel | Energy, vowels vs consonants |
 |---|---|---|---|---|---|---|
 | E1 | 5.47 s | 15.9 | 145 -> 127 Hz | 123 Hz | 53 / 46 ms | 98 vs 64 |
-| E2a | 3.42 s | 15.2 | 141 -> 121 Hz | 118 Hz | 60 / 58 ms | 102 vs 57 |
+| E2a | 3.44 s | 14.8 | 137 -> 121 Hz | 118 Hz | 64 / 70 ms | 103 vs 58 |
 | E2b | 3.77 s | 14.8 | 133 -> 126 Hz | 117 Hz | 61 / 58 ms | 102 vs 52 |
 | E3 | 2.40 s | 15.4 | 138 -> 129 Hz | 118 Hz | 62 / 116 ms | 105 vs 48 |
 | E3, no join | 2.63 s | 14.0 | 152 -> 135 Hz | 119 Hz | 75 / 116 ms | 103 vs 50 |
@@ -261,7 +270,7 @@ Summary per sentence (speech phones only; F0 is the predicted per-phone value):
 
 * **Duration.** No phone was predicted zero frames in any sentence. Telugu shows strong
   phrase-final lengthening: the final vowel is 116 to 174 ms, about twice the mean vowel.
-  English final vowels in E1, E2a and E2b are not lengthened (46 to 58 ms); E3 and E4 do
+  English final vowels in E1, E2a and E2b are not lengthened (46 to 70 ms, close to each sentence's mean vowel); E3 and E4 do
   lengthen. The T4 comma gives a 650 ms pause with a lengthened vowel before it (139 ms).
   The geminate in పట్టు is realised as two `tx` intervals totalling 116 to 128 ms (closure
   plus release) against 35 to 46 ms for its single /a/ and /u/. E1 is not compressed: the
@@ -288,7 +297,8 @@ Summary per sentence (speech phones only; F0 is the predicted per-phone value):
   clear phrase-final lengthening.
 * **Frontend.** Telugu G2P is near-deterministic from the script. English depends on
   CMUdict, a POS tagger and a neural G2P for unseen words; the English failures (E3 before the join rule, E4)
-  are all in the words the neural G2P had to guess. The one Telugu failure (T1) is a
+  are in words the neural G2P had to guess, and the first E2a run had a tokenisation bug
+  (the possessive "'s" read as a letter). The one Telugu failure (T1) is a
   loanword whose spelling does not match its usual pronunciation.
 * **Heteronyms.** English: the frontend picks the right stress for "conduct", but the model
   does not realise it. Telugu: పట్టు has the same phones and, as confirmed by a native

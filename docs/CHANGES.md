@@ -42,8 +42,8 @@ compatibility and training infrastructure.
 |---|---|
 | `text/symbols.py`, `text/__init__.py` | symbol tables per language (`en`: upstream ARPAbet table without pinyin; `te`: Telugu phone set). `text_to_sequence(text, cleaners, lang)` |
 | `transformer/Models.py` | encoder vocabulary size from the language's table (`model_config["symbol_set"]`) |
-| `text/telugu.py` (new) | Telugu number/time/ordinal normalisation and rule-based G2P (inherent vowel, virama, matras, homorganic anusvara, visarga) |
-| `text/english.py` (new) | English normalisation (times, AM/PM, dates, years, ordinals) and G2P with g2p_en on the whole sentence, so its POS-based homograph table resolves heteronyms. Upstream looked words up one at a time in a lexicon (first pronunciation always wins). At inference, a word split by a stray space is re-joined when the joined form is in CMUdict and one part is not a word on its own ("rhyth m" -> "rhythm"; `--no_join` disables it) |
+| `text/telugu.py` (new) | Telugu number/time/ordinal/percent normalisation and rule-based G2P (inherent vowel, virama, matras, homorganic anusvara, visarga); warns when non-Telugu text is dropped |
+| `text/english.py` (new) | English normalisation (times, AM/PM, dates, years, ordinals) and G2P with g2p_en on the whole sentence, so its POS-based homograph table resolves heteronyms. Upstream looked words up one at a time in a lexicon (first pronunciation always wins). At inference, a word split by a stray space is re-joined when the joined form is in CMUdict and one part is not a word on its own ("rhyth m" -> "rhythm"; `--no_join` disables it). Also re-attaches clitics ("orchestra's"), and expands currency, grouped numbers and long digit strings; hyphenated OOV words are read part by part |
 | `text/pinyin.py`, `preprocessor/{ljspeech,aishell3,libritts}.py`, `prepare_align.py`, `preprocess.py` | removed (Mandarin / other datasets, replaced by `<Language>/preprocess.py`) |
 
 ## 4. Data pipeline
