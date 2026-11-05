@@ -29,7 +29,6 @@ code { font-family: Consolas, 'DejaVu Sans Mono', monospace; font-size: 8.8pt; }
 pre { background: #f5f5f5; padding: 6pt; font-size: 8.5pt; white-space: pre-wrap; }
 img { max-width: 100%; page-break-inside: avoid; }
 figure { margin: 6pt 0; page-break-inside: avoid; } figcaption { font-size: 8.8pt; color: #333; }
-.todo { background: #fff3b0; }
 """
 
 CANDIDATES = [
