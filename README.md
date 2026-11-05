@@ -102,7 +102,8 @@ python scripts/build_report.py                  # Report/Technical_Report.md -> 
 ```
 
 Single sentence: `python English/inference.py --text "Any sentence."` (writes to
-`Results/English/custom/`).
+`Results/English/custom/`). English re-joins a word split by a stray space when the joined
+form is a dictionary word ("rhyth m" -> "rhythm"); pass `--no_join` to turn this off.
 
 ## Test sentences
 
@@ -111,4 +112,5 @@ Kept exactly as in the assignment PDF (`English/test_sentences.tsv`,
 text and phone sequence for each sentence are saved in
 `Results/<Lang>/variance_adaptor_plots/<ID>.json`. Note that T3 in the PDF reads
 "పులి అడ విలో ..." with a space inside "అడవిలో", the Telugu counterpart of E3's "rhyth m";
-it is kept.
+it is kept. `Results/English/test_generated_audios/E3.wav` uses the split-word rule;
+the unjoined version ("rye-th em") is kept in `Results/English/e3_without_join/` for comparison.

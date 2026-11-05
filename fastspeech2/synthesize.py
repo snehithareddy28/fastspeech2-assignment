@@ -271,7 +271,12 @@ def cli(default_config=None, default_sentences=None, default_out=None, default_c
     parser.add_argument("--energy_control", type=float, default=1.0)
     parser.add_argument("--duration_control", type=float, default=1.0)
     parser.add_argument("--device", default=None)
+    parser.add_argument("--no_join", action="store_true",
+                        help="English: do not re-join words split by a stray space ('rhyth m')")
     args = parser.parse_args()
+    if args.no_join:
+        import text.english
+        text.english.JOIN_SPLIT_WORDS = False
 
     ckpt = args.ckpt
     if ckpt is None:

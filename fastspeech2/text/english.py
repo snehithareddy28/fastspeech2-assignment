@@ -166,6 +166,31 @@ def _get_g2p():
 
 _PUNCT_PAUSE = set(",.;:?!")
 
+# Inference-only rule: re-join a word split by a stray space ("rhyth m" -> "rhythm").
+# Two adjacent alphabetic tokens are joined when the joined form is in CMUdict and
+# one part is not a real word on its own (not in CMUdict, or a single letter other
+# than "a"/"i"). Words that are both valid ("in to", "a way") are left alone.
+# Set to False (synthesize --no_join) to reproduce the unjoined behaviour.
+JOIN_SPLIT_WORDS = True
+
+
+def _join_split_words(words, cmu):
+    def lone(w):
+        return w not in cmu or (len(w) == 1 and w not in ("a", "i"))
+    out, joined, i = [], set(), 0
+    while i < len(words):
+        a = words[i]
+        b = words[i + 1] if i + 1 < len(words) else None
+        if (b is not None and a.isalpha() and b.isalpha() and (a + b) in cmu
+                and (lone(a) or lone(b))):
+            out.append(a + b)
+            joined.add(len(out) - 1)
+            i += 2
+        else:
+            out.append(a)
+            i += 1
+    return out, joined
+
 
 def _g2p_words(segment):
     """Mirror of g2p_en.G2p.__call__ (v2.1.0) that also reports, per word, which
@@ -183,8 +208,11 @@ def _g2p_words(segment):
         words = word_tokenize(text)
     except LookupError:
         words = TweetTokenizer().tokenize(text)
+    joined = set()
+    if JOIN_SPLIT_WORDS:
+        words, joined = _join_split_words(words, g2p.cmu)
     result = []
-    for word, pos in pos_tag(words):
+    for k, (word, pos) in enumerate(pos_tag(words)):
         if re.search("[a-z]", word) is None:
             result.append((word, [word], "punct"))
             continue
@@ -198,6 +226,8 @@ def _g2p_words(segment):
         else:
             pron = g2p.predict(word)
             src = "neural"
+        if k in joined:
+            src = "joined+" + src
         result.append((word, list(pron), src))
     return result
 
