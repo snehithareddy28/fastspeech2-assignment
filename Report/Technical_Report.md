@@ -289,7 +289,7 @@ Summary per sentence (speech phones only; F0 is the predicted per-phone value):
 
 ## 8. English vs Telugu
 
-**Listening.** All English outputs sound somewhat noisy, while words remain clear. The Telugu outputs do not have this problem. This agrees with the validation mel loss, which is clearly higher for English (best 0.727 vs 0.559 for Telugu). Likely causes, not separately tested: Svarah is not studio TTS data (varied microphones and rooms, background noise that the model learns to reproduce), 49 speakers with only 4 to 25 minutes each, so the decoder averages across voices and channels, and the universal HiFi-GAN vocoder was not fine-tuned on these speakers or on upsampled 16 kHz audio.
+**Listening.** All English outputs sound somewhat noisy, while words remain clear. The Telugu outputs do not have this problem. This agrees with the validation mel loss, which is clearly higher for English (best 0.725 vs 0.559 for Telugu). Likely causes, not separately tested: Svarah is not studio TTS data (varied microphones and rooms, background noise that the model learns to reproduce), 49 speakers with only 4 to 25 minutes each, so the decoder averages across voices and channels, and the universal HiFi-GAN vocoder was not fine-tuned on these speakers or on upsampled 16 kHz audio.
 
 * **Data.** One studio speaker reading long sentences (Telugu) against 49 speakers with 4 to
   25 minutes each in varied conditions (English). As expected, Telugu is cleaner and more
