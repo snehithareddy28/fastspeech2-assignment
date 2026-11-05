@@ -1,0 +1,52 @@
+[
+ {
+  "id": "T1",
+  "seconds": 5.178,
+  "n_phones": 66,
+  "mean_f0_hz": 206.2,
+  "min_f0_hz": 159.9,
+  "max_f0_hz": 329.8,
+  "zero_duration_phones": 0,
+  "normalized_text": "న్యూరోఫార్మకోలాజికల్ పరిశోధనలో నూతన ఔషధాల ప్రభావాన్ని విశ్లేషించారు."
+ },
+ {
+  "id": "T2a",
+  "seconds": 2.45,
+  "n_phones": 31,
+  "mean_f0_hz": 209.2,
+  "min_f0_hz": 153.7,
+  "max_f0_hz": 274.5,
+  "zero_duration_phones": 0,
+  "normalized_text": "తాడుపై అతని పట్టు చాలా బలంగా ఉంది."
+ },
+ {
+  "id": "T2b",
+  "seconds": 2.635,
+  "n_phones": 37,
+  "mean_f0_hz": 199.5,
+  "min_f0_hz": 146.7,
+  "max_f0_hz": 279.6,
+  "zero_duration_phones": 0,
+  "normalized_text": "ఆమె పట్టు చీరను ధరించి వేడుకకు వచ్చింది."
+ },
+ {
+  "id": "T3",
+  "seconds": 2.159,
+  "n_phones": 31,
+  "mean_f0_hz": 210.5,
+  "min_f0_hz": 148.2,
+  "max_f0_hz": 332.4,
+  "zero_duration_phones": 0,
+  "normalized_text": "పులి అడ విలో నిశ్శబ్దంగా నడిచింది."
+ },
+ {
+  "id": "T4",
+  "seconds": 9.265,
+  "n_phones": 120,
+  "mean_f0_hz": 208.6,
+  "min_f0_hz": 161.5,
+  "max_f0_hz": 300.0,
+  "zero_duration_phones": 0,
+  "normalized_text": "ఈ సమావేశం రెండు వేల ఇరవై ఆరు నవంబర్ పన్నెండవ తేదీ ఉదయం పది నలభై ఐదు గంటలకు ప్రారంభమవుతుంది, సమయానికి సిద్ధంగా ఉంచండి."
+ }
+]

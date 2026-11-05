@@ -1,0 +1,52 @@
+[
+ {
+  "id": "E1",
+  "seconds": 5.468,
+  "n_phones": 87,
+  "mean_f0_hz": 134.9,
+  "min_f0_hz": 114.6,
+  "max_f0_hz": 170.8,
+  "zero_duration_phones": 0,
+  "normalized_text": "The antidisestablishmentarianism movement gained considerable momentum during the parliamentary proceedings."
+ },
+ {
+  "id": "E2a",
+  "seconds": 3.425,
+  "n_phones": 52,
+  "mean_f0_hz": 135.0,
+  "min_f0_hz": 113.1,
+  "max_f0_hz": 167.9,
+  "zero_duration_phones": 0,
+  "normalized_text": "The orchestra's conduct during the ceremony was praised by the audience."
+ },
+ {
+  "id": "E2b",
+  "seconds": 3.773,
+  "n_phones": 56,
+  "mean_f0_hz": 133.9,
+  "min_f0_hz": 110.1,
+  "max_f0_hz": 171.1,
+  "zero_duration_phones": 0,
+  "normalized_text": "The researchers will conduct an experiment to evaluate the proposed method."
+ },
+ {
+  "id": "E3",
+  "seconds": 2.635,
+  "n_phones": 37,
+  "mean_f0_hz": 146.4,
+  "min_f0_hz": 119.3,
+  "max_f0_hz": 181.7,
+  "zero_duration_phones": 0,
+  "normalized_text": "The rhyth m of the orchestra changed unexpectedly."
+ },
+ {
+  "id": "E4",
+  "seconds": 6.711,
+  "n_phones": 82,
+  "mean_f0_hz": 139.2,
+  "min_f0_hz": 109.4,
+  "max_f0_hz": 175.6,
+  "zero_duration_phones": 0,
+  "normalized_text": "The meeting will start at ten forty five {EY1 EH1 M} on twelfth November twenty twenty six, so andaroo should arrive on time."
+ }
+]

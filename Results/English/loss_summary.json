@@ -1,0 +1,32 @@
+{
+  "last_train_step": 65000,
+  "val_points": 65,
+  "best_val_step": 10000,
+  "best_val": {
+    "total": 2.4935,
+    "mel": 0.7269,
+    "mel_postnet": 0.7266,
+    "pitch": 0.4046,
+    "energy": 0.3787,
+    "duration": 0.2567
+  },
+  "final_val_step": 65000,
+  "final_val": {
+    "total": 2.5208,
+    "mel": 0.7415,
+    "mel_postnet": 0.7412,
+    "pitch": 0.4034,
+    "energy": 0.3803,
+    "duration": 0.2544
+  },
+  "final_train_mean_last_1k": {
+    "total": 0.7979,
+    "mel": 0.3815,
+    "mel_postnet": 0.3808,
+    "pitch": 0.0128,
+    "energy": 0.0145,
+    "duration": 0.0082
+  },
+  "median_steps_per_sec": 4.06,
+  "train_wallclock_h_last_session": 4.72
+}

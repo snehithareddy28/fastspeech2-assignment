@@ -1,0 +1,110 @@
+# FastSpeech 2, Telugu (IndicTTS Telugu). One file replaces ming024's preprocess/model/train.yaml.
+# Relative paths are resolved from the repository root.
+language: te
+dataset: IndicTTS_Telugu
+
+data:                      # used by Telugu/preprocess.py prepare
+  hf_dataset: SPRINGLab/IndicTTS_Telugu
+  hf_split: train
+  audio_column: audio
+  text_column: text
+  speaker: auto            # "female" / "male" / auto = more usable audio
+  train_hours: 5.5        # selection target before silence trimming / chunk drops;
+  val_hours: 1.1          # post-processing hours are reported in features_summary.json
+  min_dur: 1.0
+  max_dur: 30.0            # utterances are long (median ~19 s); they are aligned whole and
+                           # split at pauses into <=10 s training items (preprocessing.chunking)
+  min_words: 2
+  seed: 1234
+
+path:
+  raw_path: data/Telugu/raw
+  lexicon_path: data/Telugu/lexicon.txt      # rule-based G2P lexicon written by `prepare`
+  mfa_model_path: data/Telugu/mfa_telugu_acoustic.zip
+  textgrid_path: data/Telugu/TextGrid
+  preprocessed_path: data/Telugu/preprocessed
+  ckpt_path: Telugu/checkpoints
+  log_path: Results/Telugu/logs
+  result_path: Results/Telugu
+
+preprocessing:
+  text:
+    text_cleaners: []      # phones come from text/telugu.py
+  audio:
+    sampling_rate: 22050   # IndicTTS Telugu on HF is 16 kHz: upsampled, nothing above 8 kHz
+    max_wav_value: 32768.0
+  stft:
+    filter_length: 1024
+    hop_length: 256
+    win_length: 1024
+  mel:
+    n_mel_channels: 80
+    mel_fmin: 0
+    mel_fmax: 8000
+  pitch:
+    feature: phoneme_level
+    normalization: true
+    f0_floor: 65.0         # narrowed to the chosen speaker after inspecting data
+    f0_ceil: 500.0
+  energy:
+    feature: phoneme_level
+    normalization: true
+  chunking:                # split long aligned utterances at pauses
+    enabled: true
+    max_sec: 10.0          # < max_seq_len (1000 frames = 11.6 s)
+    min_pause_sec: 0.15    # an MFA silence at least this long is a cut point
+    min_sec: 1.0
+
+model:
+  transformer:
+    encoder_layer: 4
+    encoder_head: 2
+    encoder_hidden: 256
+    decoder_layer: 6
+    decoder_head: 2
+    decoder_hidden: 256
+    conv_filter_size: 1024
+    conv_kernel_size: [9, 1]
+    encoder_dropout: 0.2
+    decoder_dropout: 0.2
+  variance_predictor:
+    filter_size: 256
+    kernel_size: 3
+    dropout: 0.5
+  variance_embedding:
+    pitch_quantization: linear
+    energy_quantization: linear
+    n_bins: 256
+  multi_speaker: false     # single speaker
+  max_seq_len: 1000
+  vocoder:
+    model: HiFi-GAN
+    speaker: universal
+
+train:
+  optimizer:
+    batch_size: 16
+    betas: [0.9, 0.98]
+    eps: 0.000000001
+    weight_decay: 0.0
+    grad_clip_thresh: 1.0
+    grad_acc_step: 1
+    warm_up_step: 4000
+    anneal_steps: [0.6, 0.8, 0.9]   # fractions of total_step
+    anneal_rate: 0.3
+  step:
+    total_step: 65000      # ~4.8 h at ~3.8 it/s (Kaggle T4, fp16, one language at a time); see README
+    log_step: 100
+    val_step: 1000
+    save_step: 10000
+    latest_step: 1000
+    keep_last: 3
+  misc:
+    seed: 1234
+    num_workers: 4
+    group_size: 4
+    amp: true              # fp16 autocast: 3.8 vs 1.7 it/s on a T4; same val loss in a GPU smoke test
+    tensorboard: false
+
+inference:
+  speaker: auto
