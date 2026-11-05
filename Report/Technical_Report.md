@@ -151,7 +151,7 @@ audio), random sampling with a fixed seed. In both cases the validation share (1
 taken within each speaker and grouped by normalised transcript; the script asserts that no
 transcript appears in both splits. The selection target is 10 % above 5 h + 1 h because
 leading/trailing silence trimming and chunking remove audio; the final hours are in the
-table. Lists of selected utterances: `Results/<Lang>/data_selection.tsv`.
+table. Lists of selected utterances: `Results/<Lang>/others/data_selection.tsv`.
 
 **Preprocessing.** Mono, resampled to 22.05 kHz (both sources are upsampled, so the mel
 bands above 8 kHz are empty; the HiFi-GAN mel range is 0 to 8 kHz anyway), peak-normalised.
@@ -188,8 +188,8 @@ final-step checkpoints were also synthesised; they sounded the same as the best 
 ![Telugu training loss](../Results/Telugu/training_loss.png)
 ![Telugu validation loss](../Results/Telugu/validation_loss.png)
 
-![English train vs validation](../Results/English/train_vs_val.png)
-![Telugu train vs validation](../Results/Telugu/train_vs_val.png)
+![English train vs validation](../Results/English/others/train_vs_val.png)
+![Telugu train vs validation](../Results/Telugu/others/train_vs_val.png)
 
 | Loss | EN train (last 1k steps) | EN val best (step) | EN val final | TE train (last 1k steps) | TE val best (step) | TE val final |
 |---|---|---|---|---|---|---|
@@ -230,9 +230,9 @@ Listening observations are the author's, made on the generated files.
 | ID | Frontend output (deterministic, verified) | Listening observations |
 |---|---|---|
 | E1 | "antidisestablishmentarianism" is in CMUdict: `AE2 N T AY0 D IH0 S AH0 S T AE2 B L IH0 SH M AH0 N T EH1 R IY0 AH0 N IH0 Z AH0 M` (28 phones) | The long word is clear and intact. As in all English outputs, the audio has audible background noise (see Section 8). |
-| E2a | "conduct" tagged NN -> `K AA1 N D AH0 K T` (noun stress). "orchestra's" -> CMUdict `... AH0 Z` | Sounds natural, but no stress is audible on either syllable (see E2b). Predicted: AA1 46 ms / 137 Hz, AH0 104 ms / 130 Hz; the stressed vowel is shorter than the unstressed one and the pitch step is only 7 Hz. The first run split off "'s" and read it as the letter name `EH1 S`, because NLTK's word_tokenize separates clitics; the frontend now re-attaches them (Section 2.3). The corrected version was judged right by listening; the earlier output is kept in `Results/English/e2a_before_clitic_fix/` (there the AA1/AH0 values were 58 ms / 140 Hz and 104 ms / 130 Hz, same conclusion). |
+| E2a | "conduct" tagged NN -> `K AA1 N D AH0 K T` (noun stress). "orchestra's" -> CMUdict `... AH0 Z` | Sounds natural, but no stress is audible on either syllable (see E2b). Predicted: AA1 46 ms / 137 Hz, AH0 104 ms / 130 Hz; the stressed vowel is shorter than the unstressed one and the pitch step is only 7 Hz. The first run split off "'s" and read it as the letter name `EH1 S`, because NLTK's word_tokenize separates clitics; the frontend now re-attaches them (Section 2.3). The corrected version was judged right by listening; the earlier output is kept in `Results/English/others/e2a_before_clitic_fix/` (there the AA1/AH0 values were 58 ms / 140 Hz and 104 ms / 130 Hz, same conclusion). |
 | E2b | "conduct" tagged VB -> `K AA0 N D AH1 K T` (verb stress) | Sounds natural, but no stress contrast with E2a is audible. Predicted: AA0 58 ms / 130 Hz, AH1 35 ms / 133 Hz, i.e. the stressed vowel is again the shorter one and pitch is flat. The frontend does choose the correct stress (the phone symbols differ: AA1/AH0 vs AA0/AH1), but the model has not learned to realise lexical stress as duration or pitch. Plausible reasons: Indian English, the variety in Svarah, marks lexical stress weakly and less consistently than US English, the CMUdict stress labels are US English, and 5 h of data gives few contrasting examples. |
-| E3 | With the split-word rule: "rhyth m" -> "rhythm" -> CMUdict `R IH1 DH AH0 M`. Without it (`--no_join`, kept in `Results/English/e3_without_join/`): "rhyth" is OOV -> neural G2P `R AY1 DH`, "m" -> letter name `EH1 M` | With the rule it sounds like "rhythm". Without it, heard as "rye-th em", as predicted by the phones: the model speaks what the frontend gives it, so the error was entirely in text processing, not in the acoustic model. In the fixed version the F0 peak falls on the unstressed AH0 (158 Hz, 58 ms) rather than IH1 (135 Hz, 46 ms), the same missing-stress pattern as E2a/E2b. |
+| E3 | With the split-word rule: "rhyth m" -> "rhythm" -> CMUdict `R IH1 DH AH0 M`. Without it (`--no_join`, kept in `Results/English/others/e3_without_join/`): "rhyth" is OOV -> neural G2P `R AY1 DH`, "m" -> letter name `EH1 M` | With the rule it sounds like "rhythm". Without it, heard as "rye-th em", as predicted by the phones: the model speaks what the frontend gives it, so the error was entirely in text processing, not in the acoustic model. In the fixed version the F0 peak falls on the unstressed AH0 (158 Hz, 58 ms) rather than IH1 (135 Hz, 46 ms), the same missing-stress pattern as E2a/E2b. |
 | E4 | normalised to "ten forty five {A M} on twelfth November twenty twenty six, so andaroo ..."; AM as letter names `EY1 EH1 M`; "andaroo" OOV -> `AE0 N D AA1 R OW0` | Time and date sound perfect. "andaroo" sounds rushed: its predicted vowels (AE0 70, AA1 58, OW0 70 ms) are no longer than the sentence's average vowel (63 ms), whereas Telugu అందరూ ends in a long /uu/ (the Telugu model predicts about 100 to 120 ms for long vowels). The English G2P reads it with English vowels (AE, OW) and English stress, so a Telugu word in an English sentence gets English timing. |
 
 ### Telugu
@@ -333,9 +333,9 @@ predictors given the overfitting in Section 5.
 
 * Software (training): Python 3.13.16, PyTorch 2.11.0+cu130, librosa 0.11.0, numpy 2.1.3,
   MFA 3.4.3. `requirements.txt` gives lower bounds; the exact environment of each stage is
-  in `Results/environment_*.txt` (`pip freeze`).
+  in `Results/others/environment_*.txt` (`pip freeze`).
 * Configs: `English/config.yaml`, `Telugu/config.yaml` (copied into
-  `Results/<Lang>/logs/config_used.yaml` at training time).
+  `Results/<Lang>/others/logs/config_used.yaml` at training time).
 * Commands (from the repository root):
 
 ```bash

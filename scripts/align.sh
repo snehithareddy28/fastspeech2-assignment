@@ -13,7 +13,8 @@ if [ "$LANG_ARG" = "telugu-ctc" ]; then
   python "$ROOT/scripts/ctc_align.py" --config "$ROOT/Telugu/config.yaml" 2>&1 | tee "$D/ctc_align.log"
   n_wav=$(find "$D/raw" -name '*.wav' | wc -l); n_tg=$(find "$D/TextGrid" -name '*.TextGrid' | wc -l)
   mkdir -p "$ROOT/Results/Telugu"
-  echo "Aligned $n_tg / $n_wav utterances (CTC fallback aligner)" | tee "$ROOT/Results/Telugu/alignment_coverage.txt"
+  mkdir -p "$ROOT/Results/Telugu/others"
+  echo "Aligned $n_tg / $n_wav utterances (CTC fallback aligner)" | tee "$ROOT/Results/Telugu/others/alignment_coverage.txt"
   exit 0
 fi
 MFA="${MFA:-$ROOT/.mfa_env/bin/mfa}"
@@ -53,5 +54,6 @@ n_tg=$( (find "$D/TextGrid" -name '*.TextGrid' 2>/dev/null || true) | wc -l)
 echo "Aligned $n_tg / $n_wav utterances" | tee "$D/alignment_coverage.txt"
 [ "$n_tg" -gt 0 ] || { echo "MFA produced no TextGrids"; exit 1; }
 mkdir -p "$ROOT/Results/${LANG_ARG^}"
-cp "$D/alignment_coverage.txt" "$ROOT/Results/${LANG_ARG^}/alignment_coverage.txt"
-"$MFA" version > "$ROOT/Results/${LANG_ARG^}/mfa_version.txt"
+mkdir -p "$ROOT/Results/${LANG_ARG^}/others"
+cp "$D/alignment_coverage.txt" "$ROOT/Results/${LANG_ARG^}/others/alignment_coverage.txt"
+"$MFA" version > "$ROOT/Results/${LANG_ARG^}/others/mfa_version.txt"

@@ -160,7 +160,7 @@ def features(cfg_path, workers):
 
     _, (pc, mc, tc) = load_config(cfg_path)
     summary = Preprocessor(pc).build_from_path(num_workers=workers)
-    res = pc["path"]["result_path"]
+    res = os.path.join(pc["path"]["result_path"], "others")
     os.makedirs(res, exist_ok=True)
     with open(os.path.join(res, "features_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)

@@ -251,7 +251,8 @@ def synthesize_sentences(config_path, ckpt, sentences_tsv, out_dir, speaker="aut
             "zero_duration_phones": int(np.sum(d_round == 0)),
             "normalized_text": norm,
         })
-    with open(os.path.join(out_dir, "test_summary.json"), "w", encoding="utf-8") as f:
+    os.makedirs(os.path.join(out_dir, "others"), exist_ok=True)
+    with open(os.path.join(out_dir, "others", "test_summary.json"), "w", encoding="utf-8") as f:
         json.dump(summary, f, ensure_ascii=False, indent=1)
     print("\nWrote", wav_dir, "and", plot_root)
     return summary

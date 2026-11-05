@@ -108,6 +108,7 @@ def stable_id(*parts):
 
 def write_manifests(raw_dir, results_dir, items, summary, lexicon_entries, lexicon_path):
     os.makedirs(raw_dir, exist_ok=True)
+    results_dir = os.path.join(results_dir, "others")  # extras beside the required files
     os.makedirs(results_dir, exist_ok=True)
     with open(os.path.join(raw_dir, "split.tsv"), "w", encoding="utf-8") as f:
         f.write("basename\tspeaker\tsplit\n")

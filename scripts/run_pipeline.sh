@@ -9,9 +9,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
 stage="${1:?stage}"; lang="${2:-}"
 # record the exact environment used for this stage (requirements.txt has lower bounds only)
-mkdir -p Results
+mkdir -p Results/others
 { echo "# $(date -u +%FT%TZ) stage=$stage $lang"; python --version; nvidia-smi -L 2>/dev/null || true
-  python -m pip freeze; } > "Results/environment_${stage}${lang:+_$lang}.txt" 2>&1 || true
+  python -m pip freeze; } > "Results/others/environment_${stage}${lang:+_$lang}.txt" 2>&1 || true
 cap() { echo "${1^}"; }
 case "$stage" in
   data)
@@ -28,12 +28,12 @@ case "$stage" in
     ;;
   train)
     L=$(cap "$lang"); H="${3:-}"; DEV="${4:-cuda:0}"
-    mkdir -p "Results/$L/logs"
-    python "$L/train.py" --device "$DEV" ${H:+--max_hours "$H"} 2>&1 | tee -a "Results/$L/logs/train_stdout.log"
+    mkdir -p "Results/$L/others/logs"
+    python "$L/train.py" --device "$DEV" ${H:+--max_hours "$H"} 2>&1 | tee -a "Results/$L/others/logs/train_stdout.log"
     ;;
   train-both)
     H="${2:-}"
-    mkdir -p Results/English/logs Results/Telugu/logs
+    mkdir -p Results/English/others/logs Results/Telugu/others/logs
     export TQDM_DISABLE=1   # progress bars are noise in a log; step lines are still printed
     NGPU=$( (nvidia-smi -L 2>/dev/null || true) | wc -l)
     # two GPUs: one language each; one GPU: both processes share it (each needs < 8 GB)
@@ -42,12 +42,12 @@ case "$stage" in
     # full output goes to train_stdout.log; progress/validation/error lines are also echoed
     # with a language tag so a notebook log shows both runs live
     run_one() {  # $1=Lang $2=gpu $3=tag
-      CUDA_VISIBLE_DEVICES=$2 python -u "$1/train.py" ${H:+--max_hours "$H"} 2>&1         | tee -a "Results/$1/logs/train_stdout.log"         | grep --line-buffered -E "Step [0-9]+/|Validation|Resuming|Parameters|utterances|Time budget|Reached|Error|Traceback|Non-finite"         | sed -u "s/^/[$3] /" || true
+      CUDA_VISIBLE_DEVICES=$2 python -u "$1/train.py" ${H:+--max_hours "$H"} 2>&1         | tee -a "Results/$1/others/logs/train_stdout.log"         | grep --line-buffered -E "Step [0-9]+/|Validation|Resuming|Parameters|utterances|Time budget|Reached|Error|Traceback|Non-finite"         | sed -u "s/^/[$3] /" || true
     }
     run_one English 0 EN &
     run_one Telugu "$G2" TE &
     wait
-    tail -n 3 Results/English/logs/train_stdout.log Results/Telugu/logs/train_stdout.log
+    tail -n 3 Results/English/others/logs/train_stdout.log Results/Telugu/others/logs/train_stdout.log
     ;;
   train-seq)
     # one language after the other, each with the whole machine: on a 4-core Kaggle GPU
@@ -55,9 +55,9 @@ case "$stage" in
     H="${2:-}"   # wall-clock budget PER language
     export TQDM_DISABLE=1
     for L in English Telugu; do
-      mkdir -p "Results/$L/logs"
+      mkdir -p "Results/$L/others/logs"
       tag=$([ "$L" = English ] && echo EN || echo TE)
-      CUDA_VISIBLE_DEVICES=0 python -u "$L/train.py" ${H:+--max_hours "$H"} 2>&1         | tee -a "Results/$L/logs/train_stdout.log"         | grep --line-buffered -E "Step [0-9]+/|Validation|Resuming|Parameters|utterances|Time budget|Reached|Error|Traceback|Non-finite"         | sed -u "s/^/[$tag] /" || true
+      CUDA_VISIBLE_DEVICES=0 python -u "$L/train.py" ${H:+--max_hours "$H"} 2>&1         | tee -a "Results/$L/others/logs/train_stdout.log"         | grep --line-buffered -E "Step [0-9]+/|Validation|Resuming|Parameters|utterances|Time budget|Reached|Error|Traceback|Non-finite"         | sed -u "s/^/[$tag] /" || true
     done
     ;;
   results)

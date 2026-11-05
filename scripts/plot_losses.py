@@ -3,8 +3,8 @@
     python scripts/plot_losses.py English
     python scripts/plot_losses.py Telugu
 
-Writes Results/<Lang>/training_loss.png, validation_loss.png, train_vs_val.png
-and loss_summary.json (numbers quoted in the report come from this file).
+Writes Results/<Lang>/training_loss.png, validation_loss.png, and others/train_vs_val.png
+and others/loss_summary.json (numbers quoted in the report come from this file).
 """
 import csv
 import json
@@ -51,7 +51,9 @@ def panel(ax_grid, data, title_prefix, smooth):
 
 def main(lang, out=None):
     out = out or os.path.join(ROOT, "Results", lang)
-    log = os.path.join(out, "logs")
+    extra = os.path.join(out, "others")  # logs and extras beside the required plots
+    os.makedirs(extra, exist_ok=True)
+    log = os.path.join(extra, "logs")
     tr = read(os.path.join(log, "train_log.csv"))
     va = read(os.path.join(log, "val_log.csv"))
 
@@ -84,7 +86,7 @@ def main(lang, out=None):
         axs.flat[0].legend(fontsize=7)
         fig.suptitle("{}: train vs validation".format(lang))
         fig.tight_layout()
-        fig.savefig(os.path.join(out, "train_vs_val.png"), dpi=150)
+        fig.savefig(os.path.join(extra, "train_vs_val.png"), dpi=150)
         plt.close(fig)
 
         i = int(np.argmin(va["total"]))
@@ -100,11 +102,11 @@ def main(lang, out=None):
     if "steps_per_sec" in tr:
         summary["median_steps_per_sec"] = round(float(np.median(tr["steps_per_sec"])), 2)
         summary["train_wallclock_h_last_session"] = round(float(tr["elapsed_h"][-1]), 2)
-    with open(os.path.join(out, "loss_summary.json"), "w") as f:
+    with open(os.path.join(extra, "loss_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":
-    # optional 2nd arg: results dir containing logs/ (default Results/<Lang>)
+    # optional 2nd arg: results dir containing others/logs/ (default Results/<Lang>)
     main(sys.argv[1] if len(sys.argv) > 1 else "English", sys.argv[2] if len(sys.argv) > 2 else None)

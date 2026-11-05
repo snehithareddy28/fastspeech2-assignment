@@ -24,7 +24,7 @@ path:
   textgrid_path: data/Telugu/TextGrid
   preprocessed_path: data/Telugu/preprocessed
   ckpt_path: Telugu/checkpoints
-  log_path: Results/Telugu/logs
+  log_path: Results/Telugu/others/logs
   result_path: Results/Telugu
 
 preprocessing:

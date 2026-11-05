@@ -1,7 +1,7 @@
 # Python 3.10-3.13. Lower bounds only for libraries that Kaggle/Colab preinstall, so pip
 # keeps the platform's wheels instead of compiling numpy/scipy from source. The exact
 # versions used for the submitted results are recorded by scripts/run_pipeline.sh in
-# Results/environment_<stage>.txt (python version + pip freeze).
+# Results/others/environment_<stage>.txt (python version + pip freeze).
 # torch: use the preinstalled CUDA build (>= 2.1).
 torch>=2.1
 numpy>=1.26,<3

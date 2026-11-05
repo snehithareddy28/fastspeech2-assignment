@@ -14,8 +14,8 @@ export MAMBA_ROOT_PREFIX="$ROOT/.micromamba"
 if [ ! -x "$ENV/bin/mfa" ]; then
   "$MM" create -y -p "$ENV" -c conda-forge "montreal-forced-aligner=${MFA_VERSION:-3}" python=3.11
 fi
-mkdir -p "$ROOT/Results"
+mkdir -p "$ROOT/Results/others"
 export PATH="$ENV/bin:$PATH"
-"$ENV/bin/mfa" version | tee "$ROOT/Results/mfa_version.txt"
+"$ENV/bin/mfa" version | tee "$ROOT/Results/others/mfa_version.txt"
 command -v fstcompile >/dev/null || { echo "OpenFst binaries missing from $ENV/bin"; exit 1; }
 echo "MFA ready: $ENV/bin/mfa"

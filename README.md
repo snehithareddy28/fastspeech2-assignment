@@ -22,10 +22,12 @@ All changes to the upstream code: [`docs/CHANGES.md`](docs/CHANGES.md).
 English/  train.py  preprocess.py  inference.py  config.yaml  test_sentences.tsv  checkpoints/
 Telugu/   train.py  preprocess.py  inference.py  config.yaml  test_sentences.tsv  checkpoints/
 Results/<Lang>/
-    training_loss.png  validation_loss.png  train_vs_val.png  loss_summary.json
+    training_loss.png  validation_loss.png
     test_generated_audios/<ID>.wav
     variance_adaptor_plots/{duration,pitch,energy,overview}/<ID>.png  and <ID>.json
-    data_selection.tsv  data_selection_summary.json  features_summary.json  logs/
+    others/   train_vs_val.png  loss_summary.json  test_summary.json  logs/
+              data_selection.tsv  data_selection_summary.json  features_summary.json  ...
+Results/others/   environment_*.txt (pip freeze per stage)
 fastspeech2/   vendored ming024 code (first commit = pristine upstream), patched
 scripts/       MFA setup + alignment, pipeline runner, loss plots, checkpoint export, report build
 Report/        Technical_Report.md -> Technical_Report.pdf
@@ -46,7 +48,9 @@ in `fastspeech2/`. Each language has one `config.yaml` (upstream used three file
 `inference.py` run without the training data. Clone with `git lfs install` first, or download
 the files from the [v1.0 release](https://github.com/snehithareddy28/fastspeech2-assignment/releases/tag/v1.0) (SHA-256 sums attached). Both are the
 lowest-validation-loss checkpoints; to use a full checkpoint, save it as
-`<Lang>/checkpoints/best.pth.tar`.
+`<Lang>/checkpoints/best.pth.tar`. Checked from a fresh clone: the fp16 weights reproduce the
+committed test outputs (same phones, lengths and mean F0) except E3, which is one frame
+(11 ms) shorter because the committed E3 was made from the full checkpoint.
 
 ## Reproducing
 
@@ -87,7 +91,7 @@ each versus about 3.8 it/s for one run, so the languages were trained one after 
 
 Training resumes automatically from `<Lang>/checkpoints/latest.pth.tar` (saved every 1000
 steps), so a killed session loses at most 1000 steps: rerun the same command. Losses are
-appended to `Results/<Lang>/logs/{train,val}_log.csv`.
+appended to `Results/<Lang>/others/logs/{train,val}_log.csv`.
 
 **Choosing `total_step`.** The trainer prints `it/s`. After ~500 steps set
 `train.step.total_step` in the config to about `it/s x 3600 x GPU hours` (the LR anneal points
@@ -113,6 +117,6 @@ text and phone sequence for each sentence are saved in
 `Results/<Lang>/variance_adaptor_plots/<ID>.json`. Note that T3 in the PDF reads
 "పులి అడ విలో ..." with a space inside "అడవిలో", the Telugu counterpart of E3's "rhyth m";
 it is kept. `Results/English/test_generated_audios/E3.wav` uses the split-word rule;
-the unjoined version ("rye-th em") is kept in `Results/English/e3_without_join/` for comparison.
+the unjoined version ("rye-th em") is kept in `Results/English/others/e3_without_join/` for comparison.
 E2a was regenerated after a frontend fix for possessives ("orchestra's" had its "'s" read as
-the letter s); the earlier output is in `Results/English/e2a_before_clitic_fix/`.
+the letter s); the earlier output is in `Results/English/others/e2a_before_clitic_fix/`.

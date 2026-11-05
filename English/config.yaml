@@ -25,7 +25,7 @@ path:
   textgrid_path: data/English/TextGrid       # MFA output
   preprocessed_path: data/English/preprocessed
   ckpt_path: English/checkpoints
-  log_path: Results/English/logs
+  log_path: Results/English/others/logs
   result_path: Results/English
 
 preprocessing:
