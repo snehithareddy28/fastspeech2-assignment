@@ -39,12 +39,14 @@ in `fastspeech2/`. Each language has one `config.yaml` (upstream used three file
 
 | Model | File in repo (fp16 weights, Git LFS) | Full training checkpoint (fp32 + optimizer) |
 |---|---|---|
-| English | `English/checkpoints/english_step<N>_infer_fp16.pth.tar` | GitHub Release (added after training) |
-| Telugu | `Telugu/checkpoints/telugu_step<N>_infer_fp16.pth.tar` | GitHub Release (added after training) |
+| English | `English/checkpoints/english_step10000_infer_fp16.pth.tar` | [english_best_step10000.pth.tar](https://github.com/snehithareddy28/fastspeech2-assignment/releases/download/v1.0/english_best_step10000.pth.tar) |
+| Telugu | `Telugu/checkpoints/telugu_step14000_infer_fp16.pth.tar` | [telugu_best_step14000.pth.tar](https://github.com/snehithareddy28/fastspeech2-assignment/releases/download/v1.0/telugu_best_step14000.pth.tar) |
 
 `stats.json`, `speakers.json` and `train_speaker_counts.json` next to each checkpoint let
 `inference.py` run without the training data. Clone with `git lfs install` first, or download
-the files from the release page.
+the files from the [v1.0 release](https://github.com/snehithareddy28/fastspeech2-assignment/releases/tag/v1.0) (SHA-256 sums attached). Both are the
+lowest-validation-loss checkpoints; to use a full checkpoint, save it as
+`<Lang>/checkpoints/best.pth.tar`.
 
 ## Reproducing
 
@@ -74,11 +76,14 @@ These stages need no GPU, so on Kaggle they can run in a CPU session to save GPU
 ### 2. Training (GPU)
 
 ```bash
-bash scripts/run_pipeline.sh train-both 11   # English on GPU 0, Telugu on GPU 1, stop after 11 h
+bash scripts/run_pipeline.sh train-seq 5.1   # English then Telugu, 5.1 h each (what was used)
 # or one language at a time:
-python English/train.py --max_hours 8
-python Telugu/train.py  --max_hours 8
+python English/train.py --max_hours 5.1
+python Telugu/train.py  --max_hours 5.1
 ```
+
+On a 4-core Kaggle T4 box, two parallel runs (`train-both`) were CPU-bound at about 1.1 it/s
+each versus about 3.8 it/s for one run, so the languages were trained one after the other.
 
 Training resumes automatically from `<Lang>/checkpoints/latest.pth.tar` (saved every 1000
 steps), so a killed session loses at most 1000 steps: rerun the same command. Losses are
